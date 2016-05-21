@@ -39,7 +39,7 @@ struct ip_mreq group;
 
 
 void print_usage(char *name) {
-    printf("Usage: %s [options]\nOptions:\n-p\t\tport\n-BT\t\tbroadcast transfer\n-T\t\tuse TFTP protocol\n-h\t\tprint this message\n", name);
+    printf("Usage: %s [options]\nOptions:\n-p\t\tport\n-BT\t\tbroadcast transfer\n-TFTP\t\tuse TFTP protocol\n-h\t\tprint this message\n", name);
 }
 
 

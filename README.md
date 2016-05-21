@@ -42,7 +42,7 @@ Usage: ./srv [options] [filename]
 Options:
 -p		port
 -BT		broadcast transfer
--TFTP		use TFTP protocol
+-TFTP	use TFTP protocol
 -h		print this message
 ```
 ```bash
@@ -51,8 +51,25 @@ Usage: ./clt [options]
 Options:
 -p		port
 -BT		broadcast transfer
--T		use TFTP protocol
+-TFTP	use TFTP protocol
 -h		print this message
+```
+In default protocol, you should start all the clients before the server. You can skip the options. Simple example:
+```bash
+$ ./clt 
+```
+
+```bash
+$ ./srv hello.txt
+```
+
+In TFTP protocol, you should start the server at first. After that, you should start the client with the name of the file you want to get from the server. Use flag '-TFTP':
+```bash
+$ ./srv -TFTP
+```
+
+```bash
+$ ./clt -TFTP hello.txt
 ```
 
 ## Project
