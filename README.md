@@ -9,13 +9,32 @@ Choose the version of project. You can use [waiting model](https://github.com/Pe
 ### Installing
 
 Download the source files. 
-You should use server IP address as SRV_IP which defined in client source code. Also you should define IP address in server source code. You can change IP address in code or by using command line options.
-Set comfortable waiting time.
+Set SRV_IP which is defined in clt.c into your server's IP address.
+
+```
+#define SRV_IP "192.168.1.1" // address of the server
+```
+
+Also you should define IP address in server source code.
+
+```
+#define IP "192.168.1.62" // address of the current machine
+```
+
+You can change client IP address in the source code or by using command line options.
+Set comfortable waiting time and the other defined parameters. 
+
+Compile server and client by using gcc.
 
 ```
 $ gcc clt.c -o clt
 $ gcc srv.c -o srv
-$ ./srv
+```
+
+### Usage
+
+```
+$ ./srv -h
 Usage: ./srv [options] [filename]
 Options:
 -p		port
@@ -23,9 +42,17 @@ Options:
 -TFTP		use TFTP protocol
 -h		print this message
 ```
-
+```
+$ ./clt -h
+Usage: ./clt [options]
+Options:
+-p		port
+-BT		broadcast transfer
+-T		use TFTP protocol
+-h		print this message
+```
 
 ## Project
 
-[This](http://w27802.vdi.mipt.ru/about.php) is online interface to manage multicast file transfer.
+This is the educational project for the Network technologies course. [This](http://w27802.vdi.mipt.ru/about.php) is online interface to manage multicast file transfer. 
 
