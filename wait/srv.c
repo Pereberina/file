@@ -1,3 +1,10 @@
+//
+//  srv.c
+//
+//  Created on April 2016
+//  Copyright © 2016 com.mipt. All rights reserved.
+//
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -10,20 +17,20 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdint.h>
-#define BUFLEN 1024
+#define BUFLEN 1024 // size of transferred metadata buffer
 #define LEN (BUFLEN - sizeof(off_t) - sizeof(mode_t))
-#define DATA_SIZE 1024
+#define DATA_SIZE 1024  // size of transferred data buffer
 #define PACK_SIZE (DATA_SIZE + sizeof(int))
 #define PORT 4323
-#define CONTROL_PORT 1150
-#define GROUP_ADDR "229.1.1.0"
-#define IP "10.55.125.214"
-#define PATH "./uploads/"
+#define CONTROL_PORT 1150 // port for the lost packets to be resent
+#define GROUP_ADDR "229.1.1.0" // address of the multicast group
+#define IP "192.168.1.62" // address of the current machine
+#define PATH "./uploads/" // to get files
 #define TRUE 1
 #define FALSE 0
-#define WAITING_TIME 10
-#define BLOCKSIZE 1024
+#define WAITING_TIME 10 // time to wait whether there are lost packets in seconds
 #define OCTET "octet"
+#define BLOCKSIZE 1024 // size of TFTP data
 #define TFTP_DATA_SIZE 4
 
 int sock;
@@ -32,31 +39,18 @@ struct in_addr localInterface;
 struct sockaddr_in groupSock;
 char *src;
 
+
+void print_usage(char *name) {
+    printf("Usage: %s [options] [filename]\nOptions:\n-p\t\tport\n-BT\t\tbroadcast transfer\n-TFTP\t\tuse TFTP protocol\n-h\t\tprint this message\n", name);
+}
+
 enum PROTOCOL {
   DEFAULT,
   TFTP
 };
 
-enum REQUEST {
-  RRQ = 0x1,
-  WRQ,
-  DATA,
-  ACK,
-  ERR,
-  ERR2
-};
 
-enum ERROR_CODES {
-  NONE = 0x0,
-  FILE_NOT_FOUND = 0x1,
-  PERMISSION_DENIED,
-  DISK_ERROR,
-  UNCORRECT_OPERATION,
-  UNCORRECT_ID,
-  FILE_EXISTS,
-  USER_NOT_EXIST,
-  UNCORRECT__OPTION
-};
+// DEFAULT PROTOCOL
 
 typedef struct {
     char filename[LEN];
@@ -131,7 +125,7 @@ void default_protocol(Default_protocol_meta *data) {
           }
        }
      }
-     //printf("Bye!\n");
+   
      close(control_sock);
      exit(0);
 CHILD_CLEAN_UP:
@@ -144,7 +138,7 @@ CHILD_CLEAN_UP:
     datalen = (i + DATA_SIZE >= data->st_size)? (data->st_size - i):DATA_SIZE;
     databuf.num = packet_num;
     memcpy(databuf.data, &src[i], datalen);
-    //printf("%s\n", databuf);
+    
     if ((packet_num == 5)||(packet_num == 3)) {
         continue;
     }
@@ -161,6 +155,29 @@ CHILD_CLEAN_UP:
   kill(pid, SIGTERM);
 }
 
+
+// TFTP PROTOCOL
+
+enum REQUEST {
+    RRQ = 0x1,
+    WRQ,
+    DATA,
+    ACK,
+    ERR,
+    ERR2
+};
+
+enum ERROR_CODES {
+    NONE = 0x0,
+    FILE_NOT_FOUND = 0x1,
+    PERMISSION_DENIED,
+    DISK_ERROR,
+    UNCORRECT_OPERATION,
+    UNCORRECT_ID,
+    FILE_EXISTS,
+    USER_NOT_EXIST,
+    UNCORRECT__OPTION
+};
 
 typedef struct __attribute__((packed)) {
     uint16_t type;
@@ -204,7 +221,7 @@ void send_error(uint16_t code, char *msg) {
 void tftp_protocol(void) {
   RQ request;
   _DATA databuf;
-  //char block[BLOCKSIZE];
+
   int datalen;
   int i;
   int size;
@@ -233,17 +250,15 @@ void tftp_protocol(void) {
       goto TFTP_CLEAN_UP1;
     }
 
-  //printf("%d %s %s\n", request.type, request.filename, request.mode);
+
 
     if(recvfrom(sock, request.mode, BUFLEN, MSG_WAITALL, (struct sockaddr *)&groupSock, &size) < 0) {
       perror("Reading datagram message error");
       goto TFTP_CLEAN_UP1;
     }
 
-  //printf("%d %s %s\n", request.type, request.filename, request.mode);
-  if (strcmp(request.mode, OCTET)) {
-    // error
 
+  if (strcmp(request.mode, OCTET)) {
     send_error(UNCORRECT_OPERATION, "Unknown mode\n");
     goto TFTP_CLEAN_UP1;
   }
@@ -311,9 +326,6 @@ TFTP_CLEAN_UP1:
   exit(1);
 }
 
-void print_usage(char *name) {
-    printf("Usage: %s [options] [filename]\nOptions:\n-p\t\tport\n-BT\t\tbroadcast transfer\n-TFTP\t\tuse TFTP protocol\n-h\t\tprint this message\n", name);
-}
 
 int main (int argc, char *argv[ ])
 {

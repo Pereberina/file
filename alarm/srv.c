@@ -1,3 +1,10 @@
+//
+//  srv.c
+//
+//  Created on April 2016
+//  Copyright © 2016 com.mipt. All rights reserved.
+//
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -12,20 +19,20 @@
 #include <stdint.h>
 #include <errno.h>
 #include <signal.h>
-#define BUFLEN 1024
+#define BUFLEN 1024 // size of transferred metadata buffer
 #define LEN (BUFLEN - sizeof(off_t) - sizeof(mode_t))
-#define DATA_SIZE 1024
+#define DATA_SIZE 1024  // size of transferred data buffer
 #define PACK_SIZE (DATA_SIZE + sizeof(int))
 #define PORT 4322
-#define CONTROL_PORT 5312
-#define GROUP_ADDR "229.1.1.0"
-#define IP "192.168.1.33"
-#define PATH "./uploads/"
+#define CONTROL_PORT 5312 // port for the lost packets to be resent
+#define GROUP_ADDR "229.1.1.0" // address of the multicast group
+#define IP "192.168.1.62" // address of the current machine
+#define PATH "./uploads/"  // to get files
 #define TRUE 1
 #define FALSE 0
-#define WAITING_TIME 10
-#define BLOCKSIZE 1024
+#define ALARM_TIME 10 // time to wait whether there are some clients
 #define OCTET "octet"
+#define BLOCKSIZE 1024 // size of TFTP data
 #define TFTP_DATA_SIZE 4
 
 int sock;
@@ -40,31 +47,12 @@ enum PROTOCOL {
   TFTP
 };
 
-enum REQUEST {
-  RRQ = 0x1,
-  WRQ,
-  DATA,
-  ACK,
-  ERR,
-  ERR2
-};
-
-void alarm_handler(int val) {
-    printf("Alarm!!!\n");
-    alarm_happened = 1 + val;
+void alarm_handler(int unused) {
+    //printf("Alarm!!!\n");
+    alarm_happened = 1;
 }
 
-enum ERROR_CODES {
-  NONE = 0x0,
-  FILE_NOT_FOUND = 0x1,
-  PERMISSION_DENIED,
-  DISK_ERROR,
-  UNCORRECT_OPERATION,
-  UNCORRECT_ID,
-  FILE_EXISTS,
-  USER_NOT_EXIST,
-  UNCORRECT__OPTION
-};
+// DEFAULT PROTOCOL
 
 typedef struct {
     char filename[LEN];
@@ -115,32 +103,8 @@ void default_protocol(Default_protocol_meta *data) {
       }
       signal(SIGALRM, alarm_handler);
       siginterrupt(SIGALRM, 1);
-      alarm(15);
-// TODO: alarm
-    /*  while(!alarm_happened) {
-        printf("while\n");
-        char new_clt = 0;
-        char ack = 1;
-        if (recvfrom(control_sock, &new_clt, 1, 0, (struct sockaddr *)&addr_s, &size) < 0) {
-          printf("lol\n");
-          if ((errno == EINTR) && (alarm_happened != 0)) {
-            printf("Alarm happened\n");
-            break;
-          }
+      alarm(ALARM_TIME);
 
-          perror("Can't recvfrom");
-          goto CHILD_CLEAN_UP;
-        } else {
-          printf("here\n");
-          clients_num++;
-          if(sendto(control_sock, &ack, 1, 0, (struct sockaddr*)&addr_s, sizeof(addr_s)) < 0) {
-            perror("Sending datagram message error");
-          } else {
-            printf("Sending datagram message...OK\n");
-          }
-        }
-      }*/
-      //clients_num = 1;
       printf("Clents: %d\n", clients_num);
       while ((!alarm_happened) || (clients_num > 0)) {
         memset(cbuf, '\0', BUFLEN);
@@ -148,7 +112,7 @@ void default_protocol(Default_protocol_meta *data) {
         if (recvfrom(control_sock, cbuf, BUFLEN, 0, (struct sockaddr *)&addr_s, &size)==-1) {
           perror("Can't recvfrom");
           goto CHILD_CLEAN_UP;
-        } else { // TODO: done
+        } else {
           sscanf(cbuf, "%d", &lost_packet_num);
           if (lost_packet_num == 0) {
             clients_num--;
@@ -179,14 +143,12 @@ void default_protocol(Default_protocol_meta *data) {
        }
        printf("end\n");
      }
-     //printf("Bye!\n");
      close(control_sock);
      exit(0);
 CHILD_CLEAN_UP:
       close(control_sock);
       exit(1);
   }
-  //waitpid(pid, &returnStatus, 0);
 
   memset(metabuf, '\0', BUFLEN);
   sprintf(metabuf, "%d %d %s \n", data->st_size, data->st_mode, data->filename);
@@ -203,7 +165,6 @@ CHILD_CLEAN_UP:
     datalen = (i + DATA_SIZE >= data->st_size)? (data->st_size - i):DATA_SIZE;
     databuf.num = packet_num;
     memcpy(databuf.data, &src[i], datalen);
-    //printf("%s\n", databuf);
     if ((packet_num == 5) || (packet_num == 2)) {
         continue;
     }
@@ -217,10 +178,33 @@ CHILD_CLEAN_UP:
 
    waitpid(pid, &returnStatus, 0);
    printf("Child process returned %d\n", returnStatus);
-  //sleep(WAITING_TIME);
-  //close(control_sock);
-  //kill(pid, SIGTERM);
 }
+
+
+// TFTP PROTOCOL
+
+enum REQUEST {
+    RRQ = 0x1,
+    WRQ,
+    DATA,
+    ACK,
+    ERR,
+    ERR2
+};
+
+
+
+enum ERROR_CODES {
+    NONE = 0x0,
+    FILE_NOT_FOUND = 0x1,
+    PERMISSION_DENIED,
+    DISK_ERROR,
+    UNCORRECT_OPERATION,
+    UNCORRECT_ID,
+    FILE_EXISTS,
+    USER_NOT_EXIST,
+    UNCORRECT__OPTION
+};
 
 
 typedef struct __attribute__((packed)) {
@@ -262,10 +246,10 @@ void send_error(uint16_t code, char *msg) {
 
 }
 
+
 void tftp_protocol(void) {
   RQ request;
   _DATA databuf;
-  //char block[BLOCKSIZE];
   int datalen;
   int i;
   int size;
@@ -294,14 +278,12 @@ void tftp_protocol(void) {
       goto TFTP_CLEAN_UP1;
     }
 
-  //printf("%d %s %s\n", request.type, request.filename, request.mode);
 
     if(recvfrom(sock, request.mode, BUFLEN, MSG_WAITALL, (struct sockaddr *)&groupSock, &size) < 0) {
       perror("Reading datagram message error");
       goto TFTP_CLEAN_UP1;
     }
 
-  //printf("%d %s %s\n", request.type, request.filename, request.mode);
   if (strcmp(request.mode, OCTET)) {
     // error
 

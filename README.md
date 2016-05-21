@@ -8,7 +8,7 @@ Choose the version of project. You can use [waiting model](https://github.com/Pe
 
 ### Installing
 
-Download client and server sources. 
+Download the source files. 
 You should use server IP address as SRV_IP which defined in client source code. Also you should define IP address in server source code. You can change IP address in code or by using command line options.
 Set comfortable waiting time.
 
