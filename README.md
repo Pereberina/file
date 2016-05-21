@@ -9,7 +9,7 @@ Choose the version of project. You can use [waiting model](https://github.com/Pe
 ### Installing
 
 Download the source files. 
-Set SRV_IP which is defined in clt.c into your server's IP address.
+Set `SRV_IP` which is defined in `clt.c` into your server's IP address.
 
 ```c
 #define SRV_IP "192.168.1.1" // address of the server
@@ -23,7 +23,7 @@ Also you should define IP address in the server source code.
 
 You can change client IP address in the source code or by using command line options.
 
-Set comfortable waiting time and the other defined parameters. Don't forget to make changes both in clt.c and srv.c.
+Set comfortable waiting time and the other defined parameters. Don't forget to make changes both in `clt.c` and `srv.c`.
 
 Compile server and client by using gcc.
 
