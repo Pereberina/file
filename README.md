@@ -1,7 +1,6 @@
 # Multicast file transfer
 
-This is the part of Multicast file transfer project which supposed to transfer file through multicast or broadcast. There is additional option to connect using simple realisation of TFTP protocol.
-Here you can find source code for server and client.
+This is the part of Multicast file transfer project which is supposed to be used to transfer file through multicast or broadcast. There is an additional option to connect by using simple realisation of [TFTP](https://tools.ietf.org/html/rfc1350) protocol. Here you can find the source code for server and client.
 
 ## Getting Started
 
