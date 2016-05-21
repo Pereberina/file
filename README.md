@@ -4,7 +4,7 @@ This is the part of Multicast file transfer project which is supposed to be used
 
 ## Getting Started
 
-Choose the version of project. You can use wait model where server waits some time after file transmition to send lost packets. In the other model, the server monitors that all the clients recieved file.
+Choose the version of project. You can use [waiting model](https://github.com/Pereberina/file/tree/master/wait) where server waits some time after file transmision to resend lost packets if it is neccessary. In the [other model](https://github.com/Pereberina/file/tree/master/alarm), the server monitors whether all the clients have recieved the file.
 
 ### Installing
 
