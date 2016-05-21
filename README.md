@@ -54,7 +54,7 @@ Options:
 -TFTP	use TFTP protocol
 -h		print this message
 ```
-In default protocol, you should start all the clients before the server. You can skip the options. Simple example:
+In default protocol, you should start all clients before the server. You can skip the options. In the next simple example the file `hello.txt` is sent by multicast:
 ```bash
 $ ./clt 
 ```
@@ -63,7 +63,7 @@ $ ./clt
 $ ./srv hello.txt
 ```
 
-In TFTP protocol, you should start the server at first. After that, you should start the client with the name of the file you want to get from the server. Use flag '-TFTP':
+In TFTP protocol, you should start the server at first. After that, you should start the client with the name of the file you want to get from the server. Use flag `-TFTP`:
 ```bash
 $ ./srv -TFTP
 ```

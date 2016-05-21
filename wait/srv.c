@@ -435,7 +435,7 @@ int main (int argc, char *argv[ ])
     munmap(src, statbuf.st_size);
     close(file);
 
-    printf("File %s sended successfully by %s\n", argv[opt_num], (broadcast == FALSE)? "multicast":"broadcast");
+    printf("File %s is sent successfully by %s\n", argv[opt_num], (broadcast == FALSE)? "multicast":"broadcast");
   } else if (protocol == TFTP) {
 
     memset((char *) &groupSock, 0, sizeof(groupSock));
