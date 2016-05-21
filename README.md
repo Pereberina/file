@@ -23,7 +23,9 @@ Also you should define IP address in the server source code.
 
 You can change client IP address in the source code or by using command line options.
 
-Set comfortable waiting time and the other defined parameters. Don't forget to make changes both in `clt.c` and `srv.c`.
+Set comfortable waiting time and the other defined parameters. 
+
+Don't forget to make changes both in `clt.c` and `srv.c`.
 
 Compile server and client by using gcc.
 
@@ -55,5 +57,5 @@ Options:
 
 ## Project
 
-This is the educational project for the Network technologies course. [This](http://w27802.vdi.mipt.ru/about.php) is online interface to manage multicast file transfer. 
+This is the educational project for the Network technologies course. [Here](http://w27802.vdi.mipt.ru/about.php) is an online interface to manage the multicast file transfer. 
 
