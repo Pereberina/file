@@ -4,36 +4,37 @@ This is the part of Multicast file transfer project which is supposed to be used
 
 ## Getting Started
 
-Choose the version of project. You can use [waiting model](https://github.com/Pereberina/file/tree/master/wait) where server waits some time after file transmision to resend lost packets if it is neccessary. In the [other model](https://github.com/Pereberina/file/tree/master/alarm), the server monitors whether all the clients have recieved the file.
+Choose the version of project. You can use [waiting model](https://github.com/Pereberina/file/tree/master/wait) where the server waits some time after file transmision to resend lost packets if it is neccessary. In the [other model](https://github.com/Pereberina/file/tree/master/alarm), the server monitors whether all the clients have recieved the file.
 
 ### Installing
 
 Download the source files. 
 Set SRV_IP which is defined in clt.c into your server's IP address.
 
-```
+```c
 #define SRV_IP "192.168.1.1" // address of the server
 ```
 
-Also you should define IP address in server source code.
+Also you should define IP address in the server source code.
 
-```
+```c
 #define IP "192.168.1.62" // address of the current machine
 ```
 
 You can change client IP address in the source code or by using command line options.
-Set comfortable waiting time and the other defined parameters. 
+
+Set comfortable waiting time and the other defined parameters. Don't forget to make changes both in clt.c and srv.c.
 
 Compile server and client by using gcc.
 
-```
+```bash
 $ gcc clt.c -o clt
 $ gcc srv.c -o srv
 ```
 
 ### Usage
 
-```
+```bash
 $ ./srv -h
 Usage: ./srv [options] [filename]
 Options:
@@ -42,7 +43,7 @@ Options:
 -TFTP		use TFTP protocol
 -h		print this message
 ```
-```
+```bash
 $ ./clt -h
 Usage: ./clt [options]
 Options:
